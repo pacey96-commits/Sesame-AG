@@ -1,32 +1,35 @@
-name: Build SesameAG APK
+name: Build QzoneArchive Android APK
 on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-android:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Setup JDK 17
-        uses: actions/setup-java@v4
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
         with:
-          java-version: '17'
-          distribution: 'zulu'
+          toolchain: stable
+          override: true
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Build APK
-        run: ./gradlew assembleDebug
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli
 
-      - name: Find all apk files
+      - name: Build Android APK
+        run: cargo tauri android build --release
+
+      - name: Find APK
         run: find . -name "*.apk"
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SesameAG-APK
+          name: QzoneArchive-APK
           path: ./**/*.apk
 
